@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alice-deployment-normal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alice
+  template:
+    metadata:
+      labels:
+        app: alice
+    spec:
+      containers:
+      - name: alice
+        image: acralice.azurecr.io/alice/alice:latest
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alice-service-normal
+spec:
+  type: LoadBalancer
+  selector:
+    app: alice
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

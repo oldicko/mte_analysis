@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bob-deployment-normal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bob
+  template:
+    metadata:
+      labels:
+        app: bob
+    spec:
+      containers:
+      - name: bob
+        image: acrbob.azurecr.io/bob/bob:latest
+        env:
+        - name: IP
+          value: "172.165.146.240"
+        - name: PORT
+          value: "80"
+        ports:
+        - containerPort: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bob-service-normal
+spec:
+  type: LoadBalancer
+  selector:
+    app: bob
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5001
