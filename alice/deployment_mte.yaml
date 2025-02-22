@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alice-deployment-mte
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alice
+  template:
+    metadata:
+      labels:
+        app: alice
+    spec:
+      containers:
+      - name: alice
+        image: acralice.azurecr.io/alice/alice:latest
+        ports:
+        - containerPort: 5000
+      - name: azure-mte-api-relay
+        image: arcmktplaceprod.azurecr.io/eclypses1708534446098/mte-api-relay/images/azure-marketplace/mte-api-relay:4.3.2-latest
+        ports:
+        - containerPort: 8080
+        env:
+          - name: CLIENT_ID_SECRET
+            value: SecretSecretSecretSecret
+          - name: UPSTREAM
+            value: http://alice-service-internal:5000  # Use the internal service name and port
+          - name: OUTBOUND_TOKEN
+            value: TokenTokenTokenToken
+          - name: SECRET
+            value: SecretSecretSecretSecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alice-service-internal
+spec:
+  type: ClusterIP  # Internal only
+  selector:
+    app: alice
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mte-relay-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: alice
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

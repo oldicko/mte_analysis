@@ -91,6 +91,10 @@ Get the login server address for the ACR. Mine is `acrbob.azurecr.io`, you'll ne
 
 Make sure your terminal's present working directory is `alice`
 
+Connect to alice's AKS with kubectl
+
+```az aks get-credentials --resource-group resource_group_a --name AliceCluster```
+
 Deploy the alice applicationn
 
 ```kubectl apply -f .\deployment_normal.yaml```
@@ -108,6 +112,10 @@ Browse to the `EXTERNAL-IP` that is shown there
 ### Bob specific setup
 
 Make sure your terminal's present working directory is `bob`
+
+Connect to bob's AKS with kubectl
+
+```az aks get-credentials --resource-group resource_group_b --name BobCluster```
 
 Update the IP address in the [deployment_normal.yaml](bob/deployment_normal.yaml) to Alice's external IP address from before
 
@@ -164,6 +172,31 @@ architecture-beta
 ```
 
 ## With MTE
+
+### Alice specific setup
+
+Make sure your terminal's present working directory is `alice`
+
+Connect to alice's AKS with kubectl
+
+```az aks get-credentials --resource-group resource_group_a --name AliceCluster```
+
+Deploy the alice applicationn
+
+```kubectl apply -f .\deployment_mte.yaml```
+
+Check the deployment is succesful
+
+```kubectl get pods```
+
+Get the external IP address for the MTE application
+
+```kubectl get service mte-relay-service --watch```
+
+Browse to the `EXTERNAL-IP` that is shown there. You'll get the `Missing required header` error
+
+
+
 ```mermaid
 architecture-beta
     group rga(cloud)[resource_group_a]
