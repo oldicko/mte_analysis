@@ -10,7 +10,7 @@ Let's begin.
 
 ## Setup Details
 
-### Alice
+### alice
 
 Using authenticated Azure CLI running in a Windows 11 terminal
 
@@ -91,15 +91,11 @@ Get the login server address for the ACR. Mine is `acrbob.azurecr.io`, you'll ne
 
 Make sure your terminal's present working directory is `alice`
 
-Connect to alice's AKS with kubectl
-
-```az aks get-credentials --resource-group resource_group_a --name AliceCluster```
-
-Deploy the alice applicationn
+Deploy the alice application
 
 ```kubectl apply -f .\deployment_normal.yaml```
 
-Check the deployment is succesful
+Check the deployment is successful
 
 ```kubectl get pods```
 
@@ -181,21 +177,65 @@ Connect to alice's AKS with kubectl
 
 ```az aks get-credentials --resource-group resource_group_a --name AliceCluster```
 
-Deploy the alice applicationn
+Deploy the alice application
 
 ```kubectl apply -f .\deployment_mte.yaml```
 
-Check the deployment is succesful
+Check the deployment is successful
 
 ```kubectl get pods```
 
 Get the external IP address for the MTE application
 
-```kubectl get service mte-relay-service --watch```
+```kubectl get service mte-relay-service-alice --watch```
 
 Browse to the `EXTERNAL-IP` that is shown there. You'll get the `Missing required header` error
 
+### Bob specific setup
 
+Make sure your terminal's present working directory is `bob`
+
+Connect to bob's AKS with kubectl
+
+```az aks get-credentials --resource-group resource_group_b --name BobCluster```
+
+Update the IP address in the [deployment_mte.yaml](bob/deployment_mte.yaml) to Alice's external IP address from before
+
+Deploy the bob application
+
+```kubectl apply -f .\deployment_mte.yaml```
+
+Check the deployment is successful
+
+```kubectl get pods```
+
+Get the external IP address for the bob application
+
+```kubectl get service mte-relay-service-bob --watch```
+
+Browse to the `EXTERNAL-IP` that is shown there
+
+### Operation
+
+If you browse to Bob's external IP and see something like the current time and a message then the deployment is working.
+
+### Teardown
+
+Connect to alice's AKS with kubectl
+
+```az aks get-credentials --resource-group resource_group_a --name AliceCluster```
+
+Stop and remove the Alice container instances
+
+```kubectl delete -f alice/deployment_mte.yaml```
+
+Connect to bob's AKS with kubectl
+
+```az aks get-credentials --resource-group resource_group_b --name BobCluster```
+
+Stop and remove the bob container instances
+
+```kubectl delete -f bob/deployment_mte.yaml```
 
 ```mermaid
 architecture-beta

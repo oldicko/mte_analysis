@@ -1,20 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: alice-deployment-mte
+  name: bob-deployment-mte
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: alice
+      app: bob
   template:
     metadata:
       labels:
-        app: alice
+        app: bob
     spec:
       containers:
-      - name: alice
-        image: acralice.azurecr.io/alice/alice:latest
+      - name: bob
+        image: acrbob.azurecr.io/bob/bob:latest
+        env:
+        - name: IP
+          value: "mte-relay-service-bob"  # Use the service name
+        - name: PORT
+          value: "8080"
+        - name: UPSTREAM
+          value: "http://131.145.2.139" # Set this to the output of the alice deployment
         ports:
         - containerPort: 80
       - name: azure-mte-api-relay
@@ -25,7 +32,7 @@ spec:
           - name: CLIENT_ID_SECRET
             value: "SecretSecretSecretSecret"
           - name: UPSTREAM
-            value: "http://alice-service-internal:80"  # Use the internal service name and port
+            value: "http://bob-service-internal:80"  # Use the internal service name and port
           - name: OUTBOUND_TOKEN
             value: "TokenTokenTokenToken"
           - name: SECRET
@@ -36,11 +43,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: alice-service-internal
+  name: bob-service-external
 spec:
   type: LoadBalancer
   selector:
-    app: alice
+    app: bob
   ports:
     - protocol: TCP
       port: 80
@@ -49,12 +56,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mte-relay-service-alice
+  name: mte-relay-service-bob
 spec:
   type: LoadBalancer
   selector:
-    app: alice
+    app: bob
   ports:
     - protocol: TCP
-      port: 80
+      port: 8080
       targetPort: 8080
